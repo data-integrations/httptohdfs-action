@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "spec-version": "1.0"
+  },
+  "configuration-groups": [
+    {
+      "label": "HTTP To HDFS Action Properties",
+      "properties": [
+        {
+          "widget-type": "textbox",
+          "label": "URL",
+          "name": "url"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "The Location To Write The Data In HDFS",
+          "name": "hdfsFilePath"
+        },
+        {
+          "widget-type": "select",
+          "label": "HTTP Method",
+          "name": "method",
+          "widget-attributes": {
+            "values": [
+              "GET",
+              "POST"
+            ],
+            "default": "GET"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Request Body",
+          "name": "body"
+        },
+        {
+          "widget-type": "keyvalue",
+          "label": "Request Headers",
+          "name": "requestHeaders",
+          "widget-attributes": {
+            "showDelimiter": "false",
+            "kv-delimiter": ":",
+            "delimiter": "\n"
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Output File Format",
+          "name": "outputFormat",
+          "widget-attributes": {
+            "values": [
+              "Text",
+              "Binary"
+            ],
+            "default": "Text"
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Charset for Text",
+          "name": "charset",
+          "widget-attributes": {
+            "values": [
+              "UTF-8",
+              "US-ASCII",
+              "ISO-8859-1",
+              "UTF-16",
+              "UTF-16BE",
+              "UTF-16LE"
+            ],
+            "default": "UTF-8"
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Should Follow Redirects",
+          "name": "followRedirects",
+          "widget-attributes": {
+            "values": [
+              "true",
+              "false"
+            ],
+            "default": "true"
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Disable SSL Validation",
+          "name": "disableSSLValidation",
+          "widget-attributes": {
+            "values": [
+              "true",
+              "false"
+            ],
+            "default": "true"
+          }
+        },
+        {
+          "widget-type": "select",
+          "label": "Number of Retries",
+          "name": "numRetries",
+          "widget-attributes": {
+            "values": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10"
+            ],
+            "default": "3"
+          }
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Connection Timeout (milliseconds)",
+          "name": "connectTimeoutMillis"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Read Timeout (milliseconds)",
+          "name": "readTimeoutMillis"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Output File Path For The Data That Was Written",
+          "name": "outputPath"
+        },
+        {
+          "widget-type": "textbox",
+          "label": "Response Headers",
+          "name": "responseHeaders"
+        }
+      ]
+    }
+  ],
+  "outputs": []
+}
