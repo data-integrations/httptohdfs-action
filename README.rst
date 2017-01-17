@@ -1,17 +1,17 @@
 =================
-HTTPTOHDFS Plugin
+HTTPToHDFS Plugin
 =================
 
 Introduction
 ============
-Action plugin to fetch data from an external http webservice or url and dump the data into HDFS.
+Action plugin to fetch data from an external http endpoint and create a file in HDFS.
 
 Getting Started
 ===============
 
 Prerequisites
 --------------
-CDAP version 3.5.x or higher.
+CDAP version 4.0.x or higher.
 
 Building Plugins
 ----------------

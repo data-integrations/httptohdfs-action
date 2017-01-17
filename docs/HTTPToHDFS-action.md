@@ -3,31 +3,16 @@
 
 Description
 -----------
-Action to fetch data from an external http webservice or url and dump the data into HDFS.
-
-Use Cases
---------
-1.I would like to store consumer complaints data from http://www.consumerfinance.gov/data-research/consumer-complaints/#download-the-data into my cluster.
-The data is updated nightly, and is 260mb, so i would like to build a pipeline to run every 24 hours and refresh the data from the site.
-Using this plugin, i configure it to pull data from the url in csv format, and store it in hdfs.
-Then i configure a File source, a CSV parser, and a table sink to process the data in hydrator.
-2.The inventory team publishes a product inventory xml feed that contains all the current products and the quantity of the item.
-I would like to configure a pipeline to query that service every hour, and write the data into a table.
-Using this plugin, i configure it to request information from the url, provide my credentials and expected format as request headers,
-and write the results to the /tmp/ dir in HDFS so that the rest of the pipeline can process the data.
-3.I have partnered with a 3rd party company that is sending me a large amount of data in a gzip file.
-The file is stored on a webserver somewhere and i am given a url to download it.
-Using this plugin, i configure it to pull the binary file, store the .gz file on hdfs, and use the file source to natively read that data for processing.
-
+Action to fetch data from an external http endpoint and create a file in HDFS.
 
 Properties
 ----------
 
-**hdfsFilePath:** The location to write the data in HDFS. If the file already exists,same will be overwritten.
+**hdfsFilePath:** The location to write the data in HDFS. If the file already exists, it will be overwritten.
 
 **url:** The URL to fetch data from.
 
-**method:** The HTTP request method.GET and POST are the allowed methods.
+**method:** The HTTP request method. GET and POST are the allowed methods.
 
 **body:** Optional request body.
 
@@ -74,7 +59,6 @@ This example performs HTTP GET request to http://example.com/data and downloads 
             "disableSSLValidation": "true",
             "numRetries": 0,
             "connectTimeout": 60000,
-            "readTimeout": 60000,
-            "format" : "csv"
+            "readTimeout": 60000
         }
     }

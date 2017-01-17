@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Cask Data, Inc.
+ * Copyright © 2017 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,6 +26,7 @@ import co.cask.cdap.etl.api.action.ActionContext;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -59,12 +60,12 @@ import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.HttpMethod;
 
 /**
- * Action to fetch data from an external http webservice or url and dump the data into HDFS.
+ * Action to fetch data from an external http endpoint and create a file in HDFS.
  */
 
 @Plugin(type = Action.PLUGIN_TYPE)
 @Name("HTTPToHDFS")
-@Description("Action to fetch data from an external http webservice or url and dump the data into HDFS.")
+@Description("Action to fetch data from an external http endpoint and create a file in HDFS.")
 public class HTTPToHDFSAction extends Action {
   private static final Logger LOG = LoggerFactory.getLogger(HTTPToHDFSAction.class);
   private static final String KV_DELIMITER = ":";
@@ -90,6 +91,7 @@ public class HTTPToHDFSAction extends Action {
         URL url = new URL(config.url);
         conn = (HttpURLConnection) url.openConnection();
         if (conn instanceof HttpsURLConnection) {
+          //Disable SSLv3
           System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
           if (config.disableSSLValidation) {
             disableSSLValidation();
@@ -133,13 +135,13 @@ public class HTTPToHDFSAction extends Action {
             }
           }
           context.getArguments().set(config.outputPath, config.hdfsFilePath);
-          StringBuilder responseHeader = new StringBuilder();
+          Map<String, String> flattenedHeaders = new HashMap<>();
           for (Map.Entry<String, List<String>> k : conn.getHeaderFields().entrySet()) {
             if (!Strings.isNullOrEmpty(k.getKey())) {
-              responseHeader.append(k.toString()).append("\n");
+              flattenedHeaders.put(k.getKey(), Joiner.on(',').skipNulls().join(k.getValue()));
             }
           }
-          context.getArguments().set(config.responseHeaders, responseHeader.toString());
+          context.getArguments().set(config.responseHeaders, new Gson().toJson(flattenedHeaders));
         }
         break;
       } catch (MalformedURLException | ProtocolException e) {
@@ -198,7 +200,7 @@ public class HTTPToHDFSAction extends Action {
    */
   public static class HTTPToHDFSActionConfig extends PluginConfig {
 
-    @Description("The location to write the data in HDFS. If the file already exists,same will be overwritten.")
+    @Description("The location to write the data in HDFS. If the file already exists, it will be overwritten.")
     @Macro
     private String hdfsFilePath;
 
@@ -259,6 +261,20 @@ public class HTTPToHDFSAction extends Action {
     @Macro
     private String responseHeaders;
 
+    public HTTPToHDFSActionConfig() {
+      //Default values are set
+      this.connectTimeout = 60 * 1000;
+      this.readTimeout = 60 * 1000;
+      this.numRetries = 3;
+      this.followRedirects = true;
+      this.disableSSLValidation = true;
+      this.charset = "UTF-8";
+      this.outputFormat = "Text";
+      this.outputPath = "filePath";
+      this.responseHeaders = "responseHeaders";
+      this.method = "GET";
+    }
+
     public HTTPToHDFSActionConfig(String hdfsFilePath, String url, String method, @Nullable String body,
                                   @Nullable String requestHeaders, String outputFormat, String charset,
                                   boolean followRedirects, boolean disableSSLValidation, @Nullable int numRetries,
@@ -279,20 +295,6 @@ public class HTTPToHDFSAction extends Action {
       this.disableSSLValidation = disableSSLValidation;
       this.outputPath = outputPath;
       this.responseHeaders = responseHeaders;
-    }
-
-    public HTTPToHDFSActionConfig() {
-      //Default values are set
-      this.connectTimeout = 60 * 1000;
-      this.readTimeout = 60 * 1000;
-      this.numRetries = 3;
-      this.followRedirects = true;
-      this.disableSSLValidation = true;
-      this.charset = "UTF-8";
-      this.outputFormat = "Text";
-      this.outputPath = "filePath";
-      this.responseHeaders = "responseHeaders";
-      this.method = "GET";
     }
 
     public Map<String, String> getRequestHeadersMap() {

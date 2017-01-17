@@ -13,7 +13,7 @@
         },
         {
           "widget-type": "textbox",
-          "label": "The Location To Write The Data In HDFS",
+          "label": "HDFS File Path",
           "name": "hdfsFilePath"
         },
         {
@@ -73,7 +73,7 @@
         },
         {
           "widget-type": "select",
-          "label": "Should Follow Redirects",
+          "label": "Should Follow Redirects ?",
           "name": "followRedirects",
           "widget-attributes": {
             "values": [
@@ -101,10 +101,10 @@
           "name": "numRetries",
           "widget-attributes": {
             "values": [
+              "3",
               "0",
               "1",
               "2",
-              "3",
               "4",
               "5",
               "6",
@@ -119,22 +119,24 @@
         {
           "widget-type": "textbox",
           "label": "Connection Timeout (milliseconds)",
-          "name": "connectTimeoutMillis"
+          "name": "connectTimeout"
         },
         {
           "widget-type": "textbox",
           "label": "Read Timeout (milliseconds)",
-          "name": "readTimeoutMillis"
+          "name": "readTimeout"
         },
         {
           "widget-type": "textbox",
-          "label": "Output File Path For The Data That Was Written",
-          "name": "outputPath"
+          "label": "Token Key for HDFS File Path",
+          "name": "outputPath",
+          "default": "filePath"
         },
         {
           "widget-type": "textbox",
-          "label": "Response Headers",
-          "name": "responseHeaders"
+          "label": "Token Key for Response Headers",
+          "name": "responseHeaders",
+          "default": "responseHeaders"
         }
       ]
     }
