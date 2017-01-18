@@ -119,24 +119,34 @@
         {
           "widget-type": "textbox",
           "label": "Connection Timeout (milliseconds)",
-          "name": "connectTimeout"
+          "name": "connectTimeout",
+          "widget-attributes": {
+            "default": "60000"
+          }
         },
         {
           "widget-type": "textbox",
           "label": "Read Timeout (milliseconds)",
-          "name": "readTimeout"
+          "name": "readTimeout",
+          "widget-attributes": {
+            "default": "60000"
+          }
         },
         {
           "widget-type": "textbox",
           "label": "Token Key for HDFS File Path",
           "name": "outputPath",
-          "default": "filePath"
+          "widget-attributes": {
+            "default": "filePath"
+          }
         },
         {
           "widget-type": "textbox",
           "label": "Token Key for Response Headers",
           "name": "responseHeaders",
-          "default": "responseHeaders"
+          "widget-attributes": {
+            "default": "responseHeaders"
+          }
         }
       ]
     }

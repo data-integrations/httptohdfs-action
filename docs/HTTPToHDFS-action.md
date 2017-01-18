@@ -44,13 +44,13 @@ delimited by a colon (":") and each pair is delimited by a newline ("\n").
 
 Example
 -------
-This example performs HTTP GET request to http://example.com/data and downloads the csv file to file:///tmp/data.csv.
+This example performs HTTP GET request to http://example.com/data and downloads the csv file to /tmp/data.csv.
 
     {
         "name": "HTTPToHDFSAction",
         "type": "action",
         "properties": {
-            "hdfsFilePath": "file://tmp/data.csv",
+            "hdfsFilePath": "/tmp/data.csv",
             "url": "http://example.com/data",
             "method": "GET",
             "outputFormat": "Text",

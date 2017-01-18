@@ -240,10 +240,12 @@ public class HTTPToHDFSAction extends Action {
 
     @Description("Sets the connection timeout in milliseconds. Set to 0 for infinite. Default is 60000 (1 minute).")
     @Nullable
+    @Macro
     private Integer connectTimeout;
 
     @Description("The time in milliseconds to wait for a read. Set to 0 for infinite. Defaults to 60000 (1 minute).")
     @Nullable
+    @Macro
     private Integer readTimeout;
 
     @Nullable
@@ -307,7 +309,7 @@ public class HTTPToHDFSAction extends Action {
       } catch (MalformedURLException e) {
         throw new IllegalArgumentException(String.format("URL '%s' is malformed: %s", url, e.getMessage()), e);
       }
-      if (connectTimeout < 0) {
+      if (!containsMacro("connectTimeout") && connectTimeout < 0) {
         throw new IllegalArgumentException(String.format(
           "Invalid connectTimeout %d. Timeout must be 0 or a positive number.", connectTimeout));
       }
@@ -320,7 +322,7 @@ public class HTTPToHDFSAction extends Action {
         throw new IllegalArgumentException(String.format(
           "Invalid numRetries %d. Retries cannot be a negative number.", numRetries));
       }
-      if (readTimeout < 0) {
+      if (!containsMacro("readTimeout") && readTimeout < 0) {
         throw new IllegalArgumentException(String.format(
           "Invalid readTimeout %d. Timeout must be 0 or a positive number.", readTimeout));
       }
