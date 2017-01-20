@@ -38,7 +38,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -123,14 +122,13 @@ public class HTTPToHDFSAction extends Action {
                 outputStream.write(bytesIn, 0, i);
               }
             } else if (config.outputFormat.equalsIgnoreCase("Text")) {
-              try (Reader reader = new InputStreamReader(inputStream, config.charset)) {
-                StringBuilder inputStringBuilder = new StringBuilder();
-                BufferedReader bufferedReader = new BufferedReader(reader);
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                  inputStringBuilder.append(line + "\n");
+              try (BufferedReader bufferedReader = new BufferedReader
+                (new InputStreamReader(inputStream, config.charset));) {
+                int i = 0;
+                char charsIn[] = new char[BUFFER_SIZE];
+                while ((i = bufferedReader.read(charsIn)) >= 0) {
+                  outputStream.write(new String(charsIn).getBytes(), 0, i);
                 }
-                outputStream.writeBytes(inputStringBuilder.toString());
               }
             }
           }
@@ -168,7 +166,7 @@ public class HTTPToHDFSAction extends Action {
 
   private void disableSSLValidation() {
     TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-      public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+      public X509Certificate[] getAcceptedIssuers() {
         return null;
       }
 
