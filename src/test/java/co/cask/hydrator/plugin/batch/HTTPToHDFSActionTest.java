@@ -146,7 +146,7 @@ public class HTTPToHDFSActionTest extends HydratorTestBase {
     WorkflowManager manager = appManager.getWorkflowManager(SmartWorkflow.NAME);
     manager.start();
     manager.waitForFinish(5, TimeUnit.MINUTES);
-    String expectedOutput = "samuel jackson, dwayne johnson, christopher walken" + "\n";
+    String expectedOutput = "samuel jackson, dwayne johnson, christopher walken";
     String output;
     try (FileInputStream inputStream = new FileInputStream(filePath)) {
       output = IOUtils.toString(inputStream);
