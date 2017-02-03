@@ -15,7 +15,7 @@ CDAP version 4.0.x or higher.
 
 Building Plugins
 ----------------
-You get started with Run transform plugin by building directly from the latest source code::
+You get started with HTTPToHDFS action plugin by building directly from the latest source code::
 
    git clone https://github.com/hydrator/httptohdfs-action.git
    cd httptohdfs-action
