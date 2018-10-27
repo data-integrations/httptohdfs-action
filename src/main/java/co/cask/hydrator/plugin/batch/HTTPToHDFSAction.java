@@ -59,17 +59,18 @@ import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.HttpMethod;
 
 /**
- * Action to fetch data from an external http endpoint and create a file in HDFS.
+ * Action to fetch data from an external http endpoint and create a file.
  */
 
 @Plugin(type = Action.PLUGIN_TYPE)
 @Name("HTTPToHDFS")
-@Description("Action to fetch data from an external http endpoint and create a file in HDFS.")
+@Description("Action to fetch data from an external http endpoint and create a file.")
 public class HTTPToHDFSAction extends Action {
   private static final Logger LOG = LoggerFactory.getLogger(HTTPToHDFSAction.class);
   private static final String KV_DELIMITER = ":";
   private static final String DELIMITER = "\n";
   private static final int BUFFER_SIZE = 4096;
+  private static final String RECORDS_OUT = "records.out";
   private static final Set<String> METHODS = ImmutableSet.of(HttpMethod.GET, HttpMethod.POST);
 
   private final HTTPToHDFSActionConfig config;
@@ -121,14 +122,17 @@ public class HTTPToHDFSAction extends Action {
               while ((i = inputStream.read(bytesIn)) >= 0) {
                 outputStream.write(bytesIn, 0, i);
               }
+              context.getMetrics().gauge(RECORDS_OUT, 1);
             } else if (config.outputFormat.equalsIgnoreCase("Text")) {
               try (BufferedReader bufferedReader = new BufferedReader
                 (new InputStreamReader(inputStream, config.charset));) {
-                int i = 0;
+                int i = 0, count = 0;
                 char charsIn[] = new char[BUFFER_SIZE];
                 while ((i = bufferedReader.read(charsIn)) >= 0) {
                   outputStream.write(new String(charsIn).getBytes(), 0, i);
+                  count = count + 1;
                 }
+                context.getMetrics().gauge(RECORDS_OUT, count);
               }
             }
           }
