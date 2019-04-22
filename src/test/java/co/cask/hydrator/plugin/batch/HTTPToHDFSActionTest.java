@@ -16,6 +16,8 @@
 
 package co.cask.hydrator.plugin.batch;
 
+import co.cask.cdap.api.artifact.ArtifactRange;
+import co.cask.cdap.api.artifact.ArtifactSummary;
 import co.cask.cdap.api.artifact.ArtifactVersion;
 import co.cask.cdap.datapipeline.DataPipelineApp;
 import co.cask.cdap.datapipeline.SmartWorkflow;
@@ -26,9 +28,8 @@ import co.cask.cdap.etl.mock.test.HydratorTestBase;
 import co.cask.cdap.etl.proto.v2.ETLBatchConfig;
 import co.cask.cdap.etl.proto.v2.ETLPlugin;
 import co.cask.cdap.etl.proto.v2.ETLStage;
+import co.cask.cdap.proto.ProgramRunStatus;
 import co.cask.cdap.proto.artifact.AppRequest;
-import co.cask.cdap.proto.artifact.ArtifactRange;
-import co.cask.cdap.proto.artifact.ArtifactSummary;
 import co.cask.cdap.proto.id.ApplicationId;
 import co.cask.cdap.proto.id.ArtifactId;
 import co.cask.cdap.proto.id.NamespaceId;
@@ -48,7 +49,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -69,27 +72,32 @@ public class HTTPToHDFSActionTest extends HydratorTestBase {
   @ClassRule
   public static final TestConfiguration CONFIG = new TestConfiguration("explore.enabled", false);
 
+  @ClassRule
+  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+
   protected static final ArtifactId BATCH_ARTIFACT_ID = NamespaceId.DEFAULT.artifact("data-pipeline", "4.0.0");
   protected static final ArtifactSummary BATCH_ARTIFACT = new ArtifactSummary("data-pipeline", "4.0.0");
+  protected static String baseURL;
 
   private static NettyHttpService httpService;
-  protected static String baseURL;
+  private static File resourceFolder;
 
   @BeforeClass
   public static void setupTestClass() throws Exception {
-
     setupBatchArtifacts(BATCH_ARTIFACT_ID, DataPipelineApp.class);
     Set<ArtifactRange> parents = new HashSet<>();
-    parents.add(new ArtifactRange(NamespaceId.DEFAULT, BATCH_ARTIFACT_ID.getArtifact(),
+    parents.add(new ArtifactRange(NamespaceId.DEFAULT.getNamespace(), BATCH_ARTIFACT_ID.getArtifact(),
                                   new ArtifactVersion(BATCH_ARTIFACT.getVersion()), true,
                                   new ArtifactVersion(BATCH_ARTIFACT.getVersion()), true));
     addPluginArtifact(NamespaceId.DEFAULT.artifact("httptohdfs-action-plugin", "1.6.0"), parents,
                       HTTPToHDFSAction.class);
 
+    resourceFolder = temporaryFolder.newFolder("resource");
+
     List<HttpHandler> handlers = new ArrayList<>();
     handlers.add(new MockFeedHandler());
-    httpService = NettyHttpService.builder("MockService").addHttpHandlers(handlers).build();
-    httpService.startAndWait();
+    httpService = NettyHttpService.builder("MockService").setHttpHandlers(handlers).build();
+    httpService.start();
 
     int port = httpService.getBindAddress().getPort();
     baseURL = "http://localhost:" + port;
@@ -104,8 +112,8 @@ public class HTTPToHDFSActionTest extends HydratorTestBase {
   }
 
   @AfterClass
-  public static void teardown() {
-    httpService.stopAndWait();
+  public static void teardown() throws Exception {
+    httpService.stop();
   }
 
   @After
@@ -115,8 +123,8 @@ public class HTTPToHDFSActionTest extends HydratorTestBase {
 
   @Test
   public void testHTTPToHDFSAction() throws Exception {
-
-    String filePath = "/resources/data.txt";
+    File dataFile = new File(resourceFolder, "data.txt");
+    String filePath = dataFile.getAbsolutePath();
     Map<String, String> properties = new ImmutableMap.Builder<String, String>()
       .put("url", baseURL + "/feeds/users/")
       .put("method", "GET")
@@ -145,7 +153,7 @@ public class HTTPToHDFSActionTest extends HydratorTestBase {
 
     WorkflowManager manager = appManager.getWorkflowManager(SmartWorkflow.NAME);
     manager.start();
-    manager.waitForFinish(5, TimeUnit.MINUTES);
+    manager.waitForRuns(ProgramRunStatus.COMPLETED, 1, 5, TimeUnit.MINUTES);
     String expectedOutput = "samuel jackson, dwayne johnson, christopher walken";
     String output;
     try (FileInputStream inputStream = new FileInputStream(filePath)) {
