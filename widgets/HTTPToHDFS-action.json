@@ -117,7 +117,7 @@
           }
         },
         {
-          "widget-type": "textbox",
+          "widget-type": "number",
           "label": "Connection Timeout (milliseconds)",
           "name": "connectTimeout",
           "widget-attributes": {
@@ -125,7 +125,7 @@
           }
         },
         {
-          "widget-type": "textbox",
+          "widget-type": "number",
           "label": "Read Timeout (milliseconds)",
           "name": "readTimeout",
           "widget-attributes": {
