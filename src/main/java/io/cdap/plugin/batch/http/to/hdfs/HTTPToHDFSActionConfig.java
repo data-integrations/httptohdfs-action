@@ -73,8 +73,9 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
   @Macro
   private String requestHeaders;
 
-  @Description("Output data should be written as Text (JSON, XML, txt files) or Binary (zip, gzip, images). " +
-    "Defaults to Text.")
+  @Description(
+    "Output data should be written as Text (JSON, XML, txt files) or Binary (zip, gzip, images). " +
+      "Defaults to Text.")
   private String outputFormat;
 
   @Description("If text data is selected, this should be the charset of the text being returned. Defaults to UTF-8.")
@@ -83,8 +84,9 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
   @Description("Whether to automatically follow redirects. Defaults to true.")
   private Boolean followRedirects;
 
-  @Description("If user enables SSL validation, they will be expected to add the certificate to the trustStore" +
-    " on each machine. Defaults to true.")
+  @Description(
+    "If user enables SSL validation, they will be expected to add the certificate to the trustStore" +
+      " on each machine. Defaults to true.")
   private Boolean disableSSLValidation;
 
   @Name(NUM_RETRIES)
@@ -104,17 +106,19 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
   private Integer readTimeout;
 
   @Nullable
-  @Description("The key used to store the file path for the data that was written so that the file source can read " +
-    "from it. Plugins that run at later stages in the pipeline can retrieve the file path using this key " +
-    "through macro substitution:${filePath} where \"filePath\" is the key specified. Defaults to \"filePath\".")
+  @Description(
+    "The key used to store the file path for the data that was written so that the file source can read " +
+      "from it. Plugins that run at later stages in the pipeline can retrieve the file path using this key " +
+      "through macro substitution:${filePath} where \"filePath\" is the key specified. Defaults to \"filePath\".")
   @Macro
   private String outputPath;
 
   @Nullable
-  @Description("The key used to store the response headers so that they are available to other plugins " +
-    "down the line. Plugins that run at later stages in the pipeline can retrieve the response headers using this " +
-    "through macro substitution:${responseHeaders} where \"responseHeaders\" is the key specified. " +
-    "Defaults to \"responseHeaders\".")
+  @Description(
+    "The key used to store the response headers so that they are available to other plugins down the line. Plugins " +
+      "that run at later stages in the pipeline can retrieve the response headers using this through macro " +
+      "substitution:${responseHeaders} where \"responseHeaders\" is the key specified. " +
+      "Defaults to \"responseHeaders\".")
   @Macro
   private String responseHeaders;
 
@@ -132,7 +136,8 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
     this.method = "GET";
   }
 
-  public HTTPToHDFSActionConfig(String hdfsFilePath, String url, String method, @Nullable String body,
+  public HTTPToHDFSActionConfig(String hdfsFilePath, String url, String method,
+                                @Nullable String body,
                                 @Nullable String requestHeaders, String outputFormat, String charset,
                                 boolean followRedirects, boolean disableSSLValidation, @Nullable int numRetries,
                                 @Nullable int readTimeout, @Nullable int connectTimeout,
@@ -255,12 +260,16 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
   }
 
   public void validate(FailureCollector failureCollector) {
-    try {
-      new URL(url);
-    } catch (MalformedURLException e) {
-      failureCollector.addFailure(String.format("URL '%s' is malformed: '%s'", url, e.getMessage()), null)
-        .withConfigProperty(URL);
+    if (!containsMacro(URL)) {
+      try {
+        new URL(url);
+      } catch (MalformedURLException e) {
+        failureCollector
+          .addFailure(String.format("URL '%s' is malformed: '%s'", url, e.getMessage()), null)
+          .withConfigProperty(URL);
+      }
     }
+
     if (!containsMacro(CONNECT_TIMEOUT) && connectTimeout != null && connectTimeout < 0) {
       failureCollector.addFailure(String.format("Invalid connection timeout '%d'.", connectTimeout),
                                   "Connection timeout must be 0 or a positive number.")
@@ -276,7 +285,7 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
         }
       }
     }
-    if (!METHODS.contains(method.toUpperCase())) {
+    if (!containsMacro(METHOD) && !METHODS.contains(method.toUpperCase())) {
       failureCollector.addFailure(
         String.format("Invalid request method '%s'.", method),
         String.format("Request method must be one of '%s'.", Joiner.on(',').join(METHODS)))
@@ -307,6 +316,7 @@ public class HTTPToHDFSActionConfig extends PluginConfig {
    * Builder for HTTPToHDFSActionConfig
    */
   public static final class Builder {
+
     private String hdfsFilePath;
     private String url;
     private String method;
